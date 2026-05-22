@@ -63,22 +63,25 @@ Open http://localhost:5173.
 
 ## Deploy (Railway)
 
-1. Push to GitHub.
-2. Create a Railway project, add a **Postgres** addon (sets `DATABASE_URL`).
-3. Add a **Volume** mounted at `/data/uploads` (for audio retention).
-4. Set env vars in the Railway service:
-   - `JWT_SECRET` (32+ random chars — generate with `openssl rand -hex 32`)
+Build/start config lives in [`railway.json`](railway.json) + [`nixpacks.toml`](nixpacks.toml). Railway will build the frontend and serve it from the backend, as **a single service**.
+
+1. Create a Railway project from this GitHub repo.
+2. **Delete any auto-created `frontend` service** — Railway sometimes spawns one per workspace. We only want the single root service.
+3. On the single service, leave **Root Directory empty** (config files at the repo root drive the build).
+4. Add a **Postgres** addon (sets `DATABASE_URL` automatically).
+5. Add a **Volume** mounted at `/data/uploads` (for audio retention).
+6. Set env vars on the service:
+   - `JWT_SECRET` (32+ random chars — `openssl rand -hex 32`)
    - `GROQ_API_KEY`, `ANTHROPIC_API_KEY`, `RESEND_API_KEY`, `FROM_EMAIL`
    - `MIDTRANS_SERVER_KEY`, `MIDTRANS_CLIENT_KEY`, `MIDTRANS_PRODUCTION=true`
    - `PUBLIC_URL=https://mom.syntegra.co.id`
    - `AUDIO_DIR=/data/uploads`
    - `NODE_ENV=production`
-5. Build: `npm install && npm run build`
-   Start: `npm start`
-6. After first deploy, run `npm run migrate` in a Railway shell.
-7. Point `mom.syntegra.co.id` at the Railway service.
-8. In Midtrans dashboard, set the **Payment Notification URL** to
-   `https://mom.syntegra.co.id/api/subscriptions/webhook`.
+7. Deploy. Railway uses the committed config (build → `npm install && npm run build`, start → `npm start`, healthcheck → `/api/health`).
+8. After first deploy, open a Railway shell on the service and run `npm run migrate`.
+9. Point `mom.syntegra.co.id` at the Railway service.
+10. In the Midtrans dashboard, set the **Payment Notification URL** to
+    `https://mom.syntegra.co.id/api/subscriptions/webhook`.
 
 ## Status
 

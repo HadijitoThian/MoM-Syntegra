@@ -1,0 +1,14 @@
+# Pin Node 20 and skip the auto-detected workspace-per-service trap.
+# This config is read by Railway's Nixpacks builder.
+
+[phases.setup]
+nixPkgs = ['nodejs_20', 'npm-10_x']
+
+[phases.install]
+cmds = ['npm install']
+
+[phases.build]
+cmds = ['npm run build']
+
+[start]
+cmd = 'npm start'
