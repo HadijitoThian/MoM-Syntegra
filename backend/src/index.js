@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
+import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { pool } from './db.js';
@@ -34,10 +35,15 @@ app.get('/api/ready', async (_req, res) => {
   }
 });
 
-if (process.env.NODE_ENV === 'production') {
-  const distDir = path.resolve(__dirname, '../../frontend/dist');
+// Serve the built frontend if it exists, regardless of NODE_ENV. In local dev
+// you'll use `vite` on :5173 (which proxies /api here) and dist may not exist.
+const distDir = path.resolve(__dirname, '../../frontend/dist');
+if (fs.existsSync(path.join(distDir, 'index.html'))) {
+  console.log(`[mom] serving frontend from ${distDir}`);
   app.use(express.static(distDir));
   app.get('*', (_req, res) => res.sendFile(path.join(distDir, 'index.html')));
+} else {
+  console.log(`[mom] no frontend build at ${distDir} — API only`);
 }
 
 const port = Number(process.env.PORT) || 3000;
