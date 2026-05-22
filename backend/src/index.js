@@ -19,12 +19,18 @@ app.use('/api/auth', authRoutes);
 app.use('/api/meetings', meetingsRoutes);
 app.use('/api/subscriptions', subscriptionsRoutes);
 
-app.get('/api/health', async (_req, res) => {
+// Liveness: process is up. Always 200 — used by Railway healthcheck.
+app.get('/api/health', (_req, res) => {
+  res.json({ ok: true, uptime: process.uptime() });
+});
+
+// Readiness: dependencies (DB) are reachable. May return 503.
+app.get('/api/ready', async (_req, res) => {
   try {
     const { rows } = await pool.query('SELECT now() AS now');
     res.json({ ok: true, db_time: rows[0].now });
   } catch (err) {
-    res.status(500).json({ ok: false, error: err.message });
+    res.status(503).json({ ok: false, error: err.message });
   }
 });
 
