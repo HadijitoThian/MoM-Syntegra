@@ -27,11 +27,18 @@ app.get('/api/health', (_req, res) => {
 
 // Readiness: dependencies (DB) are reachable. May return 503.
 app.get('/api/ready', async (_req, res) => {
+  if (!process.env.DATABASE_URL) {
+    return res.status(503).json({ ok: false, error: 'DATABASE_URL not set' });
+  }
   try {
     const { rows } = await pool.query('SELECT now() AS now');
     res.json({ ok: true, db_time: rows[0].now });
   } catch (err) {
-    res.status(503).json({ ok: false, error: err.message });
+    res.status(503).json({
+      ok: false,
+      error: err.message || err.code || String(err) || 'unknown_db_error',
+      code: err.code,
+    });
   }
 });
 
