@@ -1,10 +1,12 @@
 import 'dotenv/config';
+import 'express-async-errors'; // patches express 4 to forward async errors
 import express from 'express';
 import cors from 'cors';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { pool } from './db.js';
+import { applyMigrations } from './migrate.js';
 import authRoutes from './routes/auth.js';
 import meetingsRoutes from './routes/meetings.js';
 import subscriptionsRoutes from './routes/subscriptions.js';
@@ -53,8 +55,27 @@ if (fs.existsSync(path.join(distDir, 'index.html'))) {
   console.log(`[mom] no frontend build at ${distDir} — API only`);
 }
 
-const port = Number(process.env.PORT) || 3000;
-app.listen(port, () => {
-  console.log(`[mom] api listening on :${port}`);
-  if (process.env.NODE_ENV !== 'test') startCron();
+// Global error handler — needs (err, req, res, next) signature. With
+// express-async-errors above, async route throws land here cleanly.
+app.use((err, req, res, _next) => {
+  console.error(`[error] ${req.method} ${req.path}:`, err.message, err.stack?.split('\n')[1]?.trim());
+  if (res.headersSent) return;
+  res.status(err.status || 500).json({ error: err.code || 'internal_error', message: err.message });
 });
+
+const port = Number(process.env.PORT) || 3000;
+
+async function start() {
+  try {
+    await applyMigrations();
+  } catch (err) {
+    console.error('[boot] migrations failed:', err.message);
+    // Still start the server so /api/health works and the user can see the problem.
+  }
+  app.listen(port, () => {
+    console.log(`[mom] api listening on :${port}`);
+    if (process.env.NODE_ENV !== 'test') startCron();
+  });
+}
+
+start();
