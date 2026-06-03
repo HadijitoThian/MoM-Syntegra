@@ -47,7 +47,7 @@ export default function MeetingDetail() {
   return (
     <main className="min-h-[100svh] bg-slate-50 px-6 py-8">
       <div className="max-w-3xl mx-auto">
-        <Link to="/" className="text-sm text-slate-500 hover:text-slate-900">← Home</Link>
+        <Link to="/app" className="text-sm text-slate-500 hover:text-slate-900">← Home</Link>
         {err && <p className="mt-4 text-red-600 text-sm">{err}</p>}
 
         {!meeting && !err && <p className="mt-8 text-slate-500">Memuat…</p>}

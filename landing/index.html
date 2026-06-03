@@ -1,0 +1,614 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0f172a" />
+  <title>Syntegra MoM — Catatan Rapat Otomatis</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>try{if(localStorage.getItem('theme')==='dark')document.documentElement.classList.add('dark')}catch(e){}</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+    html { scroll-behavior: smooth; }
+    [data-acc-body] { display: none; }
+    [data-acc].open [data-acc-body] { display: block; }
+    [data-acc].open [data-acc-icon] { transform: rotate(45deg); }
+
+    /* ---- Logo (full color over light hero) ---- */
+    .brand-logo { height: 40px; width: auto; display: block; }
+    @media (max-width: 640px) { .brand-logo { height: 34px; } }
+    .footer-logo { height: 30px; width: auto; display: block; }
+
+    /* ---- Navbar: transparent (dark text) over light hero, solid white on scroll ---- */
+    #site-header { background: transparent; border-bottom: 1px solid transparent; transition: background .3s ease, box-shadow .3s ease, border-color .3s ease; }
+    #site-header .nav-link, #site-header .brand-txt { color: #1e293b; transition: color .3s ease; }
+    #site-header .nav-link:hover { color: #2563eb; }
+    #site-header .lang-toggle { border-color: #cbd5e1; }
+    #site-header .nav-cta-btn { background: #2563eb; color: #fff; }
+    #site-header.scrolled { background: rgba(255,255,255,.92); backdrop-filter: blur(12px); box-shadow: 0 6px 24px -12px rgba(15,23,42,.22); border-bottom: 1px solid #e2e8f0; }
+    section[id] { scroll-margin-top: 88px; }
+
+    /* ---- Hero (light, blue mood) ---- */
+    .hero-img {
+      object-position: 82% center;
+      -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 32%, #000 100%);
+              mask-image: linear-gradient(to right, transparent 0%, #000 32%, #000 100%);
+    }
+    @media (min-width: 1024px) {
+      .hero-img {
+        object-position: right center;
+        transform: scale(1.06);
+        transform-origin: right center;
+        -webkit-mask-image: linear-gradient(to right, transparent 6%, #000 40%, #000 100%);
+                mask-image: linear-gradient(to right, transparent 6%, #000 40%, #000 100%);
+      }
+    }
+    .hero-overlay { background: linear-gradient(to right, rgba(239,246,255,.85) 0%, rgba(239,246,255,.55) 24%, rgba(239,246,255,.18) 46%, rgba(239,246,255,0) 64%); }
+    .hf-ic { width: 44px; height: 44px; border-radius: 50%; border: 1px solid #bfdbfe; background: #fff; box-shadow: 0 4px 14px -6px rgba(37,99,235,.28); display: grid; place-items: center; font-size: 1.15rem; flex-shrink: 0; }
+
+    /* ---- Floating notification cards ---- */
+    .fcard { animation: floatY 5s ease-in-out infinite; will-change: transform; }
+    .fc-pop { opacity: 0; transform: translateY(16px) scale(.85); animation: popIn .7s cubic-bezier(.18,1.12,.45,1) forwards; }
+    .fcard-1 .fc-pop { animation-delay: .25s; } .fcard-2 .fc-pop { animation-delay: .65s; } .fcard-3 .fc-pop { animation-delay: 1.05s; }
+    .fcard-2 { animation-delay: 1.5s; } .fcard-3 { animation-delay: .7s; }
+    @keyframes popIn { to { opacity: 1; transform: none; } }
+    @keyframes floatY { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-11px); } }
+    @media (max-width: 980px) {
+      .hero-overlay { background: linear-gradient(to bottom, rgba(239,246,255,.95) 0%, rgba(239,246,255,.78) 38%, rgba(239,246,255,.55) 100%); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .fcard { animation: none; } .fc-pop { animation: none; opacity: 1; transform: none; }
+    }
+
+    /* ---- Logo strip marquee ---- */
+    .marquee {
+      overflow: hidden;
+      -webkit-mask-image: linear-gradient(to right, transparent, #000 7%, #000 93%, transparent);
+              mask-image: linear-gradient(to right, transparent, #000 7%, #000 93%, transparent);
+    }
+    .marquee-track { display: flex; width: max-content; align-items: center; animation: marquee 34s linear infinite; }
+    .marquee:hover .marquee-track { animation-play-state: paused; }
+    .logo-item {
+      flex-shrink: 0; padding: 0 2.4rem; font-size: 1.45rem; font-weight: 700; letter-spacing: -.01em;
+      color: #94a3b8; white-space: nowrap; transition: color .2s ease;
+    }
+    .logo-item:hover { color: #2563eb; }
+    @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+    @media (prefers-reduced-motion: reduce) { .marquee-track { animation: none; } }
+
+    /* ================= DARK MODE ================= */
+    html.dark body { background-color: #0b1220; color: #e2e8f0; }
+    /* surfaces */
+    html.dark .bg-white { background-color: #111827 !important; }
+    html.dark .bg-slate-50 { background-color: #0b1220 !important; }
+    html.dark .bg-slate-100 { background-color: #1f2937 !important; }
+    html.dark .bg-blue-100 { background-color: #1e3a8a !important; }
+    /* text */
+    html.dark .text-slate-900 { color: #f1f5f9 !important; }
+    html.dark .text-slate-800 { color: #e2e8f0 !important; }
+    html.dark .text-slate-700 { color: #cbd5e1 !important; }
+    html.dark .text-slate-600 { color: #cbd5e1 !important; }
+    html.dark .text-slate-500 { color: #94a3b8 !important; }
+    html.dark .text-slate-400 { color: #94a3b8 !important; }
+    html.dark .text-blue-700 { color: #93c5fd !important; }
+    /* borders */
+    html.dark .border-slate-200 { border-color: #1f2937 !important; }
+    html.dark .border-slate-300 { border-color: #334155 !important; }
+    html.dark .border-y { border-color: #1f2937 !important; }
+    html.dark .divide-slate-200 > :not([hidden]) ~ :not([hidden]) { border-color: #1f2937 !important; }
+    /* gradient section backgrounds */
+    html.dark .from-slate-50 { --tw-gradient-from: #0b1220 var(--tw-gradient-from-position) !important; --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgb(11 18 32 / 0)) !important; }
+    html.dark .from-white { --tw-gradient-from: #0b1220 var(--tw-gradient-from-position) !important; --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgb(11 18 32 / 0)) !important; }
+    html.dark .to-white { --tw-gradient-to: #0b1220 var(--tw-gradient-to-position) !important; }
+    html.dark .to-slate-50 { --tw-gradient-to: #0b1220 var(--tw-gradient-to-position) !important; }
+
+    /* Keep HERO light (bright illustration → dark text in both modes) */
+    html.dark #beranda .text-slate-900 { color: #0f172a !important; }
+    html.dark #beranda .text-slate-700,
+    html.dark #beranda .text-slate-600 { color: #334155 !important; }
+    html.dark #beranda .bg-white { background-color: #fff !important; }
+    html.dark #beranda .bg-blue-100 { background-color: #dbeafe !important; }
+    html.dark #beranda .text-blue-700 { color: #1d4ed8 !important; }
+    html.dark #beranda .border-slate-300 { border-color: #cbd5e1 !important; }
+
+    /* Navbar (scrolled) in dark */
+    html.dark #site-header.scrolled { background: rgba(15,23,42,.9) !important; border-bottom-color: #1f2937; box-shadow: 0 6px 24px -12px rgba(0,0,0,.6); }
+    html.dark #site-header.scrolled .nav-link, html.dark #site-header.scrolled .brand-txt { color: #e2e8f0; }
+    html.dark #site-header.scrolled .brand-logo { filter: brightness(0) invert(1); }
+    html.dark #site-header.scrolled .lang-toggle { border-color: #334155; }
+    /* Footer logo visible on dark */
+    html.dark footer .footer-logo { filter: brightness(0) invert(1); }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-900 antialiased">
+
+  <!-- ============ HEADER (transparent over hero, solid on scroll) ============ -->
+  <header id="site-header" class="fixed top-0 inset-x-0 z-40">
+    <div class="max-w-6xl mx-auto px-6 h-[74px] flex items-center justify-between relative">
+      <a href="#beranda" class="flex items-center" aria-label="Syntegra MoM — Minute of Meeting">
+        <img class="brand-logo" src="logo.png?v=2" alt="Syntegra MoM" />
+      </a>
+      <!-- centered nav menu -->
+      <nav class="hidden lg:flex flex-1 items-center justify-center gap-7">
+        <a href="#fitur" class="nav-link text-sm font-medium" data-i18n="nav_feat"></a>
+        <a href="#cara-kerja" class="nav-link text-sm font-medium" data-i18n="nav_how"></a>
+        <a href="#testimoni" class="nav-link text-sm font-medium" data-i18n="nav_testi"></a>
+        <a href="#harga" class="nav-link text-sm font-medium" data-i18n="nav_price"></a>
+        <a href="#faq" class="nav-link text-sm font-medium" data-i18n="nav_faq"></a>
+      </nav>
+      <div class="flex items-center gap-3 sm:gap-5">
+        <!-- dark mode toggle -->
+        <button id="theme-toggle" class="nav-link text-lg leading-none hover:opacity-70 transition" aria-label="Toggle dark mode">🌙</button>
+        <!-- language toggle -->
+        <div class="lang-toggle inline-flex rounded-md border text-xs font-medium overflow-hidden">
+          <button data-lang="id" class="lang-btn px-2.5 py-1">ID</button>
+          <button data-lang="en" class="lang-btn px-2.5 py-1">EN</button>
+        </div>
+        <a href="/login" class="nav-link hidden sm:inline text-sm font-medium" data-i18n="nav_login"></a>
+        <a href="/signup" class="nav-cta-btn rounded-full text-xs sm:text-sm font-semibold px-3.5 sm:px-4 py-2 whitespace-nowrap transition" data-i18n="nav_cta"></a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============ HERO (light) — full-bleed on desktop, stacked on mobile ============ -->
+  <section id="beranda" class="relative overflow-hidden lg:min-h-screen lg:flex lg:items-center">
+    <!-- base gradient (all sizes) -->
+    <div class="absolute inset-0 -z-20 bg-gradient-to-b from-sky-100 via-blue-50 to-white"></div>
+    <!-- full-bleed illustration: desktop only -->
+    <div class="absolute inset-0 -z-20 overflow-hidden hidden lg:block">
+      <img src="hero.png?v=4" alt="Tim rapat dengan asisten AI Syntegra MoM" class="hero-img w-full h-full object-cover">
+    </div>
+    <!-- legibility overlay: desktop only -->
+    <div class="absolute inset-0 -z-10 hero-overlay hidden lg:block"></div>
+
+    <div class="max-w-6xl mx-auto px-6 w-full relative z-10 pt-28 pb-14 lg:py-0">
+      <div class="max-w-xl">
+        <span class="inline-flex items-center gap-2 bg-blue-100 text-blue-700 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-[11px] sm:text-sm font-semibold whitespace-nowrap">
+          <span class="inline-block w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-blue-500 animate-pulse"></span>
+          <span data-i18n="hero_pill"></span>
+        </span>
+        <h1 class="mt-6 text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.08] text-slate-900">
+          <span data-i18n="hero_h1_1"></span><br>
+          <span class="text-blue-600" data-i18n="hero_h1_2"></span>
+        </h1>
+        <p class="mt-5 text-base sm:text-lg text-slate-600 max-w-lg leading-relaxed" data-i18n="hero_sub"></p>
+
+        <!-- mobile-only image (3:4, pre-cropped to subject): between description and CTA -->
+        <img src="hero-mobile.png?v=3" alt="Tim rapat dengan asisten AI Syntegra MoM"
+             class="lg:hidden mt-8 w-full max-w-md mx-auto rounded-2xl shadow-xl ring-1 ring-slate-200/70">
+
+        <div class="mt-8 flex flex-col sm:flex-row gap-4">
+          <a href="/signup" class="rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold px-7 py-3.5 text-base shadow-lg shadow-blue-600/25 hover:-translate-y-0.5 transition active:scale-95 text-center" data-i18n="hero_cta_primary"></a>
+          <a href="#cara-kerja" class="rounded-xl bg-white border border-slate-300 hover:border-slate-900 text-slate-900 font-semibold px-7 py-3.5 text-base transition text-center" data-i18n="hero_cta_secondary"></a>
+        </div>
+        <div class="mt-10 lg:mt-12 grid grid-cols-2 sm:flex sm:flex-wrap gap-x-6 gap-y-4 sm:gap-x-8 sm:gap-y-5">
+          <div class="flex items-center gap-3"><span class="hf-ic">⏱️</span><span class="text-sm font-medium text-slate-700" data-i18n="hf_1"></span></div>
+          <div class="flex items-center gap-3"><span class="hf-ic">🗣️</span><span class="text-sm font-medium text-slate-700" data-i18n="hf_2"></span></div>
+          <div class="flex items-center gap-3"><span class="hf-ic">✅</span><span class="text-sm font-medium text-slate-700" data-i18n="hf_3"></span></div>
+          <div class="flex items-center gap-3"><span class="hf-ic">🔒</span><span class="text-sm font-medium text-slate-700" data-i18n="hf_4"></span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ LOGO STRIP (marquee) ============ -->
+  <section class="py-12 bg-white border-y border-slate-200">
+    <p class="text-center text-xs font-semibold uppercase tracking-widest text-slate-400" data-i18n="strip_h"></p>
+    <div class="marquee mt-8" id="logo-strip">
+      <div class="marquee-track" id="logo-track"></div>
+    </div>
+  </section>
+
+  <!-- ============ PAIN POINTS ============ -->
+  <section class="py-20">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="text-3xl sm:text-4xl font-bold tracking-tight text-center" data-i18n="pain_h2"></h2>
+      <div class="mt-12 grid md:grid-cols-3 gap-6">
+        <div class="rounded-2xl bg-white border border-slate-200 p-6">
+          <div class="text-3xl">🤷</div>
+          <h3 class="mt-3 text-lg font-semibold text-slate-900" data-i18n="pain_1_title"></h3>
+          <p class="mt-2 text-slate-600 text-sm leading-relaxed" data-i18n="pain_1_body"></p>
+        </div>
+        <div class="rounded-2xl bg-white border border-slate-200 p-6">
+          <div class="text-3xl">💸</div>
+          <h3 class="mt-3 text-lg font-semibold text-slate-900" data-i18n="pain_2_title"></h3>
+          <p class="mt-2 text-slate-600 text-sm leading-relaxed" data-i18n="pain_2_body"></p>
+        </div>
+        <div class="rounded-2xl bg-white border border-slate-200 p-6">
+          <div class="text-3xl">🌐</div>
+          <h3 class="mt-3 text-lg font-semibold text-slate-900" data-i18n="pain_3_title"></h3>
+          <p class="mt-2 text-slate-600 text-sm leading-relaxed" data-i18n="pain_3_body"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FEATURES ============ -->
+  <section id="fitur" class="py-20">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="text-3xl sm:text-4xl font-bold tracking-tight text-center" data-i18n="feat_h2"></h2>
+      <div class="mt-12 grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="rounded-2xl bg-white border border-slate-200 p-6">
+          <div class="text-3xl">🗣️</div>
+          <h3 class="mt-3 font-semibold text-slate-900" data-i18n="feat_1_title"></h3>
+          <p class="mt-2 text-sm text-slate-600 leading-relaxed" data-i18n="feat_1_body"></p>
+        </div>
+        <div class="rounded-2xl bg-white border border-slate-200 p-6">
+          <div class="text-3xl">✅</div>
+          <h3 class="mt-3 font-semibold text-slate-900" data-i18n="feat_2_title"></h3>
+          <p class="mt-2 text-sm text-slate-600 leading-relaxed" data-i18n="feat_2_body"></p>
+        </div>
+        <div class="rounded-2xl bg-white border border-slate-200 p-6">
+          <div class="text-3xl">🧠</div>
+          <h3 class="mt-3 font-semibold text-slate-900" data-i18n="feat_3_title"></h3>
+          <p class="mt-2 text-sm text-slate-600 leading-relaxed" data-i18n="feat_3_body"></p>
+        </div>
+        <div class="rounded-2xl bg-white border border-slate-200 p-6">
+          <div class="text-3xl">🔍</div>
+          <h3 class="mt-3 font-semibold text-slate-900" data-i18n="feat_4_title"></h3>
+          <p class="mt-2 text-sm text-slate-600 leading-relaxed" data-i18n="feat_4_body"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ HOW IT WORKS ============ -->
+  <section id="cara-kerja" class="bg-gradient-to-b from-slate-50 to-white py-20">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="text-3xl sm:text-4xl font-bold tracking-tight text-center" data-i18n="how_h2"></h2>
+      <div class="mt-12 grid lg:grid-cols-3 gap-8 items-start">
+        <div class="rounded-2xl bg-white border border-slate-200 p-6 hover:border-slate-300 hover:shadow-md transition">
+          <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-blue-600 text-white text-sm font-bold">1</span>
+          <h3 class="mt-4 text-lg font-semibold text-slate-900" data-i18n="how_1_title"></h3>
+          <p class="mt-3 text-slate-600 leading-relaxed text-sm" data-i18n="how_1_body"></p>
+        </div>
+        <div class="rounded-2xl bg-white border border-slate-200 p-6 hover:border-slate-300 hover:shadow-md transition">
+          <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-blue-600 text-white text-sm font-bold">2</span>
+          <h3 class="mt-4 text-lg font-semibold text-slate-900" data-i18n="how_2_title"></h3>
+          <p class="mt-3 text-slate-600 leading-relaxed text-sm" data-i18n="how_2_body"></p>
+        </div>
+        <div class="rounded-2xl bg-white border border-slate-200 p-6 hover:border-slate-300 hover:shadow-md transition">
+          <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-blue-600 text-white text-sm font-bold">3</span>
+          <h3 class="mt-4 text-lg font-semibold text-slate-900" data-i18n="how_3_title"></h3>
+          <p class="mt-3 text-slate-600 leading-relaxed text-sm" data-i18n="how_3_body"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ BUILT FOR ============ -->
+  <section class="py-20 bg-gradient-to-b from-white to-slate-50">
+    <div class="max-w-6xl mx-auto px-6 grid lg:grid-cols-2 gap-12 items-center">
+      <div class="grid grid-cols-2 gap-4">
+        <img src="https://images.unsplash.com/photo-1573497491208-6b1acb260507?auto=format&fit=crop&w=600&q=80" alt="" class="rounded-2xl shadow-lg aspect-[4/5] object-cover w-full">
+        <img src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?auto=format&fit=crop&w=600&q=80" alt="" class="rounded-2xl shadow-lg aspect-[4/5] object-cover w-full mt-8">
+      </div>
+      <div>
+        <h2 class="text-3xl sm:text-4xl font-bold tracking-tight" data-i18n="for_h2"></h2>
+        <p class="mt-5 text-lg text-slate-600 leading-relaxed" data-i18n="for_lead"></p>
+        <blockquote class="mt-8 border-l-4 border-blue-500 pl-5 py-2 text-slate-800 italic text-lg leading-relaxed">
+          <span data-i18n="for_quote"></span>
+          <span class="mt-2 block not-italic text-sm text-slate-500" data-i18n="for_q_attr"></span>
+        </blockquote>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ TESTIMONIALS ============ -->
+  <section id="testimoni" class="py-20">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="text-3xl sm:text-4xl font-bold tracking-tight text-center" data-i18n="testi_h2"></h2>
+      <div class="mt-12 grid md:grid-cols-3 gap-6" id="testi-list"></div>
+    </div>
+  </section>
+
+  <!-- ============ PRICING ============ -->
+  <section id="harga" class="py-20">
+    <div class="max-w-3xl mx-auto px-6 text-center">
+      <h2 class="text-3xl sm:text-4xl font-bold tracking-tight" data-i18n="price_h2"></h2>
+      <div class="mt-12 rounded-3xl bg-white text-slate-900 p-8 sm:p-10 shadow-2xl text-left relative border border-slate-200">
+        <span class="absolute -top-3 left-1/2 -translate-x-1/2 bg-blue-600 text-white text-xs font-bold tracking-wider px-3 py-1 rounded-full" data-i18n="price_pill"></span>
+        <div class="flex flex-wrap items-center gap-x-3 gap-y-2">
+          <span class="text-xl sm:text-2xl text-slate-400 line-through font-semibold whitespace-nowrap" data-i18n="price_original"></span>
+          <span class="bg-amber-100 text-amber-700 text-[11px] sm:text-xs font-bold tracking-wide px-2.5 py-1 rounded-full whitespace-nowrap" data-i18n="price_promo_label"></span>
+        </div>
+        <div class="flex items-baseline gap-2 mt-2">
+          <span class="text-4xl sm:text-6xl font-extrabold tracking-tight text-blue-600 whitespace-nowrap" data-i18n="price_amount"></span>
+          <span class="text-base sm:text-lg text-slate-500 font-medium" data-i18n="price_period"></span>
+        </div>
+        <p class="mt-2 text-slate-600 font-medium" data-i18n="price_quota"></p>
+        <ul class="mt-6 space-y-3 text-slate-700" id="price-list"></ul>
+        <a href="/signup" class="mt-8 block w-full rounded-full bg-blue-600 hover:bg-blue-500 text-white text-center font-semibold py-4 text-lg shadow-lg shadow-blue-600/30 transition active:scale-95" data-i18n="price_cta"></a>
+        <div class="mt-6 rounded-xl bg-slate-50 border border-slate-200 p-4 flex items-start gap-3">
+          <span class="text-xl">⚡</span>
+          <div>
+            <p class="font-semibold text-sm text-slate-900" data-i18n="price_topup_label"></p>
+            <p class="text-sm text-slate-600" data-i18n="price_topup_body"></p>
+          </div>
+        </div>
+      </div>
+      <p class="mt-6 text-sm text-slate-500" data-i18n="price_compare"></p>
+    </div>
+  </section>
+
+  <!-- ============ FAQ ============ -->
+  <section id="faq" class="py-20 bg-slate-50">
+    <div class="max-w-3xl mx-auto px-6">
+      <h2 class="text-3xl sm:text-4xl font-bold tracking-tight text-center" data-i18n="faq_h2"></h2>
+      <div class="mt-10 divide-y divide-slate-200 border-y border-slate-200" id="faq-list"></div>
+    </div>
+  </section>
+
+  <!-- ============ FINAL CTA ============ -->
+  <section class="relative overflow-hidden">
+    <div class="absolute inset-0 -z-10 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700"></div>
+    <div class="max-w-3xl mx-auto px-6 py-24 text-center text-white">
+      <h2 class="text-4xl sm:text-5xl font-extrabold tracking-tight" data-i18n="cta_h2"></h2>
+      <p class="mt-5 text-lg text-blue-50" data-i18n="cta_sub"></p>
+      <a href="/signup" class="mt-10 inline-block rounded-full bg-white text-blue-600 hover:text-blue-700 font-bold px-8 py-4 text-lg shadow-2xl transition active:scale-95" data-i18n="cta_btn"></a>
+    </div>
+  </section>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="border-t border-slate-200 py-10 bg-white">
+    <div class="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-sm">
+      <div class="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:gap-3 font-semibold">
+        <img class="footer-logo" src="logo.png?v=2" alt="Syntegra MoM" />
+        <span class="text-slate-400 font-normal" data-i18n="footer_tag"></span>
+      </div>
+      <p class="text-slate-500" data-i18n="footer_copy"></p>
+    </div>
+  </footer>
+
+  <script>
+    const I18N = {
+      id: {
+        nav_feat: "Fitur", nav_how: "Cara kerja", nav_testi: "Testimoni", nav_price: "Harga", nav_faq: "FAQ", nav_login: "Masuk", nav_cta: "Coba Gratis",
+        strip_h: "Dibangun & didukung oleh teknologi kelas dunia",
+        hero_pill: "Untuk SME, konsultan, lawyer & agency owner",
+        hero_h1_1: "Catatan rapat otomatis,", hero_h1_2: "tanpa ribet.",
+        hero_sub: "Rekam rapat di HP. AI buat transkrip, ringkasan, action items, dan mind map. Langsung masuk email Anda. Murah, cepat, dalam Bahasa Indonesia.",
+        hero_cta_primary: "Mulai 14 Hari Gratis", hero_cta_secondary: "Lihat cara kerjanya ↓",
+        hero_trust: "Tanpa kartu kredit · 150 menit gratis · Setup 30 detik",
+        hero_badge: "3 catatan dikirim hari ini",
+        hf_1: "Hemat waktu", hf_2: "Transkrip 2 bahasa", hf_3: "Action items otomatis", hf_4: "Aman & terenkripsi",
+        fc_1_t: "Catatan terkirim", fc_1_s: "Langsung ke email ✓",
+        fc_2_t: "Ringkasan dibuat", fc_2_s: "Transkrip + mind map",
+        fc_3_t: "3 action items", fc_3_s: "Lengkap dengan owner",
+        pain_h2: "Pernah ngalamin ini?",
+        pain_1_title: "Lupa siapa yang janji apa",
+        pain_1_body: "Tiga hari setelah rapat, semua orang ingat hal yang berbeda. Action items menguap. Project mundur.",
+        pain_2_title: "Notulis itu mahal",
+        pain_2_body: "Asisten Rp 6 juta+/bulan cuma buat catat rapat? Hire freelance Rp 200rb/rapat? Numpuk.",
+        pain_3_title: "Otter.ai mahal & gak ngerti Bahasa",
+        pain_3_body: "Tools luar tagih $10–20 USD/bulan (Rp 160rb+) dan suka salah transkrip Bahasa Indonesia. Privacy juga di server luar.",
+        how_h2: "Cara kerjanya — 3 langkah",
+        how_1_title: "Rekam",
+        how_1_body: "Buka mom.syntegra.co.id di HP, tap tombol merah. Rekam rapat di lokasi atau via Zoom — tanpa install app.",
+        how_2_title: "AI proses",
+        how_2_body: "Selesai rapat, tap Stop. Dalam beberapa detik AI bikin transkrip, ringkasan, action items, dan mind map.",
+        how_3_title: "Masuk email",
+        how_3_body: "Catatan lengkap langsung dikirim ke email Anda. Forward ke tim, simpan, atau kerjakan langsung.",
+        feat_h2: "Yang Anda dapatkan setiap rapat",
+        feat_1_title: "Transkrip 2 bahasa",
+        feat_1_body: "Bahasa Indonesia + English. AI deteksi otomatis. Akurat bahkan untuk istilah teknis & nama lokal.",
+        feat_2_title: "Action items + owner",
+        feat_2_body: "AI tahu siapa janji ngerjain apa. Deadline kelihatan jelas. Tidak ada lagi “siapa yang harusnya ngerjain ini?”.",
+        feat_3_title: "Mind map visual",
+        feat_3_body: "Topik rapat divisualisasikan. Bagus buat share ke stakeholder yang nggak ikut rapat.",
+        feat_4_title: "Tersimpan selamanya",
+        feat_4_body: "Cari catatan rapat 6 bulan lalu? Bisa. Audio disimpan 30 hari, transkrip dan ringkasan selamanya.",
+        for_h2: "Dibuat untuk profesional Indonesia",
+        for_lead: "Apakah Anda owner SME, konsultan strategi, lawyer, agency creative, atau coach — rapat adalah pekerjaan Anda. Catatan rapat adalah aset.",
+        for_quote: "“Sebelumnya saya pakai voice note + ketik manual sambil rapat. Sekarang fokus diskusi aja, sisanya beres.”",
+        for_q_attr: "— Konsultan, Jakarta",
+        testi_h2: "Apa kata pengguna",
+        testi: [
+          { quote: "Dulu saya selalu lupa follow-up hasil rapat. Sekarang action items langsung masuk email, tim tinggal eksekusi.", name: "Rio Pratama", role: "Founder, agency digital", initials: "RP" },
+          { quote: "Transkripnya akurat walau campur Bahasa Indonesia dan istilah teknis. Hemat 3–4 jam per minggu buat saya.", name: "Dewi Lestari", role: "Konsultan strategi", initials: "DL" },
+          { quote: "Klien saya butuh notulen yang rapi. Syntegra MoM bikin saya terlihat lebih profesional tanpa effort.", name: "Andi Wijaya", role: "Lawyer, firma hukum", initials: "AW" }
+        ],
+        price_h2: "Harga jujur, tanpa surprise",
+        price_pill: "PALING POPULER",
+        price_original: "Rp 88.000", price_promo_label: "PROMO LAUNCHING",
+        price_amount: "Rp 79.000", price_period: "/bulan",
+        price_quota: "750 menit rekaman/bulan (~12 jam)",
+        price_list: ["750 menit/bulan setelah subscribe", "Transkrip + ringkasan + mind map otomatis", "Catatan dikirim ke email setelah rapat", "Audio disimpan 30 hari", "Transkrip & ringkasan tersimpan selamanya", "Cancel kapan aja"],
+        price_cta: "Mulai Trial Gratis",
+        price_topup_label: "Butuh lebih?",
+        price_topup_body: "Topup Rp 25.000 = 300 menit. Tidak ada expiry. Tanpa upgrade plan.",
+        price_compare: "Bandingkan: Otter.ai Pro ~Rp 240rb/bulan · Fireflies ~Rp 290rb/bulan · Asisten part-time Rp 3jt+/bulan",
+        faq_h2: "Pertanyaan yang sering ditanya",
+        faq: [
+          ["Apakah suara saya aman?", "Audio dikirim ke server kami yang terenkripsi, lalu di-transkrip pakai AI. Audio dihapus otomatis setelah 30 hari. Tidak ada manusia mendengar rekaman Anda."],
+          ["Bisa dipakai untuk rapat Zoom/Google Meet?", "Bisa. Buka mom.syntegra.co.id di HP/laptop terpisah dan rekam audio rapat. Atau pakai output suara langsung kalau punya setup."],
+          ["Kalau saya melebihi 750 menit?", "Beli topup Rp 25.000 untuk 300 menit tambahan. Topup tidak expire, jadi bisa dipakai bulan-bulan berikutnya juga."],
+          ["Kalau trial habis sebelum 14 hari?", "Kalau Anda pakai 150 menit dalam beberapa hari, Anda bisa subscribe untuk lanjut rekam. Atau tunggu sampai trial period berakhir."],
+          ["Bisa cancel?", "Bisa kapan aja. Akses tetap aktif sampai akhir periode yang sudah dibayar. Kami tidak charge otomatis bulan berikutnya kecuali Anda renew."],
+          ["Payment methodnya apa aja?", "Lewat Midtrans: GoPay, OVO, ShopeePay, kartu kredit/debit, transfer bank (BCA, Mandiri, BNI, BRI), Indomaret, Alfamart."]
+        ],
+        cta_h2: "Mulai catat rapat dengan benar",
+        cta_sub: "14 hari gratis. 150 menit. Tanpa kartu kredit. Setup 30 detik.",
+        cta_btn: "Coba Gratis Sekarang",
+        footer_tag: "· Bagian dari ekosistem Syntegra.",
+        footer_copy: "© 2026 Syntegra. Semua hak dilindungi."
+      },
+      en: {
+        nav_feat: "Features", nav_how: "How it works", nav_testi: "Testimonials", nav_price: "Pricing", nav_faq: "FAQ", nav_login: "Log in", nav_cta: "Try Free",
+        strip_h: "Built & powered by world-class technology",
+        hero_pill: "For SME owners, consultants, lawyers & agency owners",
+        hero_h1_1: "Automatic meeting notes,", hero_h1_2: "no hassle.",
+        hero_sub: "Record meetings on your phone. AI generates transcripts, summaries, action items, and a mind map. Delivered to your inbox. Cheap, fast, native in Bahasa Indonesia.",
+        hero_cta_primary: "Start 14-Day Free Trial", hero_cta_secondary: "See how it works ↓",
+        hero_trust: "No credit card required · 150 free minutes · 30-second setup",
+        hero_badge: "3 notes delivered today",
+        hf_1: "Save time", hf_2: "Bilingual transcripts", hf_3: "Auto action items", hf_4: "Safe & encrypted",
+        fc_1_t: "Notes delivered", fc_1_s: "Straight to your inbox ✓",
+        fc_2_t: "Summary generated", fc_2_s: "Transcript + mind map",
+        fc_3_t: "3 action items", fc_3_s: "Each with an owner",
+        pain_h2: "Sound familiar?",
+        pain_1_title: "Forgot who promised what",
+        pain_1_body: "Three days later, everyone remembers something different. Action items evaporate. Projects slip.",
+        pain_2_title: "Note-takers are expensive",
+        pain_2_body: "Hiring an assistant for Rp 6M+/month just to take notes? Freelance at Rp 200K/meeting? It adds up.",
+        pain_3_title: "Otter.ai is pricey & weak in Bahasa",
+        pain_3_body: "International tools charge $10–20 USD/mo and often mistranscribe Indonesian. Plus your data sits overseas.",
+        how_h2: "How it works — 3 steps",
+        how_1_title: "Record",
+        how_1_body: "Open mom.syntegra.co.id on your phone, tap the red button. Record in person or alongside Zoom — no app to install.",
+        how_2_title: "AI processes",
+        how_2_body: "After the meeting, tap Stop. In seconds AI produces a transcript, summary, action items, and mind map.",
+        how_3_title: "Inbox delivery",
+        how_3_body: "Full notes arrive in your email. Forward to the team, archive, or act on it immediately.",
+        feat_h2: "What you get from every meeting",
+        feat_1_title: "Bilingual transcripts",
+        feat_1_body: "Bahasa Indonesia + English. Auto-detected. Accurate even with technical terms & local names.",
+        feat_2_title: "Action items + owners",
+        feat_2_body: "AI knows who promised what. Deadlines visible. No more “who was supposed to do this?”.",
+        feat_3_title: "Visual mind map",
+        feat_3_body: "Meeting topics visualised. Great for sharing with stakeholders who weren’t in the room.",
+        feat_4_title: "Forever searchable",
+        feat_4_body: "Need notes from 6 months ago? Easy. Audio kept 30 days; transcript and summary kept forever.",
+        for_h2: "Built for Indonesian professionals",
+        for_lead: "Whether you’re an SME owner, strategy consultant, lawyer, creative agency, or coach — meetings are your work. Meeting notes are an asset.",
+        for_quote: "“Before, I’d voice-record and type notes while talking. Now I just focus on the conversation — the rest takes care of itself.”",
+        for_q_attr: "— Consultant, Jakarta",
+        testi_h2: "What users say",
+        testi: [
+          { quote: "I used to forget meeting follow-ups. Now action items land in my inbox and the team just executes.", name: "Rio Pratama", role: "Founder, digital agency", initials: "RP" },
+          { quote: "The transcript is accurate even with mixed Indonesian and technical terms. Saves me 3–4 hours a week.", name: "Dewi Lestari", role: "Strategy consultant", initials: "DL" },
+          { quote: "My clients need clean minutes. Syntegra MoM makes me look more professional effortlessly.", name: "Andi Wijaya", role: "Lawyer, law firm", initials: "AW" }
+        ],
+        price_h2: "Honest pricing. No surprises.",
+        price_pill: "MOST POPULAR",
+        price_original: "Rp 88,000", price_promo_label: "LAUNCH PROMO",
+        price_amount: "Rp 79,000", price_period: "/month",
+        price_quota: "750 minutes of recording per month (~12 hours)",
+        price_list: ["750 minutes/month after subscribing", "Auto transcript + summary + mind map", "Notes emailed after every meeting", "Audio kept for 30 days", "Transcript & summary kept forever", "Cancel anytime"],
+        price_cta: "Start Free Trial",
+        price_topup_label: "Need more?",
+        price_topup_body: "Top up Rp 25,000 = 300 minutes. No expiry. No plan upgrade.",
+        price_compare: "Compare: Otter.ai Pro ~Rp 240K/mo · Fireflies ~Rp 290K/mo · Part-time assistant Rp 3M+/mo",
+        faq_h2: "Frequently asked",
+        faq: [
+          ["Is my audio safe?", "Audio is sent over encrypted connections to our servers and transcribed by AI. Audio is auto-deleted after 30 days. No human ever listens to your recordings."],
+          ["Can I use this for Zoom / Google Meet?", "Yes. Open mom.syntegra.co.id on a separate phone/laptop and record the meeting audio. Or pipe in audio directly if you have a setup."],
+          ["What if I exceed 750 minutes?", "Buy a top-up of Rp 25,000 for 300 more minutes. Top-ups never expire and carry over to later months."],
+          ["What if I burn through trial before 14 days?", "If you use all 150 minutes within a few days, you can subscribe immediately to keep recording. Otherwise just wait for the trial to expire."],
+          ["Can I cancel?", "Anytime. Your access stays active until the end of your paid period. We don’t auto-charge the following month unless you renew."],
+          ["What payment methods?", "Via Midtrans: GoPay, OVO, ShopeePay, credit/debit cards, bank transfer (BCA, Mandiri, BNI, BRI), Indomaret, Alfamart."]
+        ],
+        cta_h2: "Start taking meeting notes the right way",
+        cta_sub: "14 days free. 150 minutes. No credit card required. 30-second setup.",
+        cta_btn: "Try It Free Now",
+        footer_tag: "· Part of the Syntegra ecosystem.",
+        footer_copy: "© 2026 Syntegra. All rights reserved."
+      }
+    };
+
+    const check = '<svg class="w-5 h-5 mt-0.5 text-emerald-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>';
+
+    function render(lang) {
+      const t = I18N[lang];
+      document.documentElement.lang = lang;
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const v = t[el.getAttribute('data-i18n')];
+        if (v != null) el.textContent = v;
+      });
+      // pricing list
+      const pl = document.getElementById('price-list');
+      pl.innerHTML = t.price_list.map(item =>
+        `<li class="flex items-start gap-3">${check}<span>${item}</span></li>`).join('');
+      // testimonials
+      const tl = document.getElementById('testi-list');
+      if (tl) tl.innerHTML = t.testi.map(x => `
+        <figure class="rounded-2xl bg-white border border-slate-200 p-6 flex flex-col">
+          <div class="text-amber-400 text-sm tracking-wide">★★★★★</div>
+          <blockquote class="mt-3 text-slate-700 leading-relaxed flex-1">“${x.quote}”</blockquote>
+          <figcaption class="mt-5 flex items-center gap-3">
+            <span class="w-10 h-10 rounded-full bg-blue-100 text-blue-700 grid place-items-center font-bold text-sm flex-shrink-0">${x.initials}</span>
+            <span class="leading-tight">
+              <span class="block font-semibold text-slate-900 text-sm">${x.name}</span>
+              <span class="block text-xs text-slate-500">${x.role}</span>
+            </span>
+          </figcaption>
+        </figure>`).join('');
+      // faq accordion
+      const fl = document.getElementById('faq-list');
+      fl.innerHTML = t.faq.map(([q, a]) => `
+        <div data-acc>
+          <button class="w-full flex items-center justify-between text-left py-5" onclick="this.parentElement.classList.toggle('open')">
+            <span class="font-semibold text-slate-900 pr-4">${q}</span>
+            <span data-acc-icon class="text-2xl text-blue-500 leading-none transition-transform">+</span>
+          </button>
+          <p data-acc-body class="pb-5 text-slate-600 leading-relaxed">${a}</p>
+        </div>`).join('');
+      // toggle button styles (inactive inherits header color via .nav-link)
+      document.querySelectorAll('.lang-btn').forEach(b => {
+        const active = b.getAttribute('data-lang') === lang;
+        b.className = 'lang-btn px-2.5 py-1 transition ' + (active ? 'bg-blue-600 text-white' : 'nav-link opacity-70 hover:opacity-100');
+      });
+    }
+
+    document.querySelectorAll('.lang-btn').forEach(b =>
+      b.addEventListener('click', () => render(b.getAttribute('data-lang'))));
+    render('id');
+
+    // If user is already logged in (JWT in localStorage), swap nav CTAs to a
+    // single "Buka Aplikasi / Open App" link. Avoids confusing returning users
+    // by hiding the "Daftar / Masuk" buttons they no longer need.
+    (function () {
+      try {
+        if (!localStorage.getItem('mom_token')) return;
+        const masuk = document.querySelector('a[data-i18n="nav_login"]');
+        const cta = document.querySelector('a[data-i18n="nav_cta"]');
+        if (masuk) masuk.style.display = 'none';
+        if (cta) {
+          cta.setAttribute('href', '/app');
+          cta.removeAttribute('data-i18n');
+          const setLabel = () => {
+            const lang = document.documentElement.lang || 'id';
+            cta.textContent = (lang === 'en' ? 'Open App' : 'Buka Aplikasi') + ' →';
+          };
+          setLabel();
+          document.querySelectorAll('.lang-btn').forEach(b =>
+            b.addEventListener('click', setLabel));
+        }
+      } catch (e) {}
+    })();
+
+    // Navbar: transparent over hero, turns solid white on scroll
+    (function () {
+      const hdr = document.getElementById('site-header');
+      const onScroll = () => hdr.classList.toggle('scrolled', window.scrollY > 24);
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+    })();
+
+    // Logo strip: build a seamless marquee (list rendered twice)
+    (function () {
+      const track = document.getElementById('logo-track');
+      if (!track) return;
+      const brands = ["GitHub", "Xendit", "Claude", "Nano Banana", "DeepInfra", "ElevenLabs", "FLUX", "DeepSeek", "ChatGPT", "OpenAI"];
+      const items = brands.map(b => `<span class="logo-item">${b}</span>`).join('');
+      track.innerHTML = items + items; // duplicate for continuous loop
+    })();
+
+    // Dark mode toggle (persisted in localStorage)
+    (function () {
+      const root = document.documentElement;
+      const btn = document.getElementById('theme-toggle');
+      const setIcon = () => { if (btn) btn.textContent = root.classList.contains('dark') ? '☀️' : '🌙'; };
+      setIcon();
+      if (btn) btn.addEventListener('click', () => {
+        root.classList.toggle('dark');
+        try { localStorage.setItem('theme', root.classList.contains('dark') ? 'dark' : 'light'); } catch (e) {}
+        setIcon();
+      });
+    })();
+  </script>
+</body>
+</html>

@@ -44,11 +44,27 @@ app.get('/api/ready', async (_req, res) => {
   }
 });
 
-// Serve the built frontend if it exists, regardless of NODE_ENV. In local dev
-// you'll use `vite` on :5173 (which proxies /api here) and dist may not exist.
+// ────────────────────────────────────────────────────────────────
+// Static serving order:
+//   1. landing/  → marketing site (logo.png, hero.png, index.html at /)
+//   2. frontend/dist  → React app build assets (/assets/...)
+//   3. SPA fallback   → frontend/dist/index.html for any unmatched route
+//
+// Result: '/' returns the landing page. '/login', '/signup', '/record',
+// '/app' etc. fall through to the React SPA. '/api/*' is handled above.
+// ────────────────────────────────────────────────────────────────
+const landingDir = path.resolve(__dirname, '../../landing');
 const distDir = path.resolve(__dirname, '../../frontend/dist');
+
+if (fs.existsSync(path.join(landingDir, 'index.html'))) {
+  console.log(`[mom] serving landing page from ${landingDir}`);
+  app.use(express.static(landingDir, { index: 'index.html' }));
+} else {
+  console.log(`[mom] no landing/ found — skipping`);
+}
+
 if (fs.existsSync(path.join(distDir, 'index.html'))) {
-  console.log(`[mom] serving frontend from ${distDir}`);
+  console.log(`[mom] serving SPA from ${distDir}`);
   app.use(express.static(distDir));
   app.get('*', (_req, res) => res.sendFile(path.join(distDir, 'index.html')));
 } else {

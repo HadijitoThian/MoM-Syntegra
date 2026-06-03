@@ -9,7 +9,7 @@ export const TOPUP_MINUTES = 300;
 export const TOPUP_PRICE_IDR = 25000;
 
 // Subscription
-export const PLAN_PRICE_IDR = 59000;
+export const PLAN_PRICE_IDR = 79000;
 export const PLAN_MINUTES = 750;
 
 export function baseQuotaSeconds(user) {

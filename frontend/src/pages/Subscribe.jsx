@@ -61,7 +61,7 @@ export default function Subscribe() {
   return (
     <main className="min-h-[100svh] bg-slate-50 px-6 py-8">
       <div className="max-w-md mx-auto">
-        <Link to="/" className="text-sm text-slate-500 hover:text-slate-900">← Home</Link>
+        <Link to="/app" className="text-sm text-slate-500 hover:text-slate-900">← Home</Link>
         <div className="mt-6 rounded-2xl bg-white border border-slate-200 p-6 shadow-sm">
           <div className="text-sm text-slate-500">Syntegra MoM</div>
           <h1 className="mt-1 text-3xl font-bold text-slate-900">

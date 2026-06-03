@@ -22,7 +22,7 @@ export default function Signup() {
     setBusy(true);
     try {
       await signup(form);
-      navigate('/', { replace: true });
+      navigate('/app', { replace: true });
     } catch (e2) {
       setErr(errorToMessage(e2));
     } finally {

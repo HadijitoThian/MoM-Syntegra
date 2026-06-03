@@ -189,7 +189,7 @@ export default function MeetingRecorder() {
 
   return (
     <Shell>
-      <button onClick={() => navigate('/')} className="text-sm text-slate-400 hover:text-white">
+      <button onClick={() => navigate('/app')} className="text-sm text-slate-400 hover:text-white">
         {tr('rec_back')}
       </button>
 

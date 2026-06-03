@@ -79,7 +79,7 @@ export default function Settings() {
   return (
     <main className="min-h-[100svh] bg-slate-50 px-6 py-8">
       <div className="max-w-2xl mx-auto">
-        <Link to="/" className="text-sm text-slate-500 hover:text-slate-900">← Home</Link>
+        <Link to="/app" className="text-sm text-slate-500 hover:text-slate-900">← Home</Link>
         <h1 className="mt-4 text-2xl font-bold text-slate-900">Pengaturan</h1>
 
         <Section title="Akun">

@@ -5,7 +5,7 @@ import crypto from 'node:crypto';
 const SANDBOX = 'https://app.sandbox.midtrans.com/snap/v1/transactions';
 const PROD = 'https://app.midtrans.com/snap/v1/transactions';
 
-export const PLAN_AMOUNT_IDR = 59000;
+export const PLAN_AMOUNT_IDR = 79000;
 export const TOPUP_AMOUNT_IDR = 25000;
 export const TOPUP_MINUTES = 300;
 
