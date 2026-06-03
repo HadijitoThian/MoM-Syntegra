@@ -5,7 +5,9 @@
 nixPkgs = ['nodejs_20', 'npm-10_x']
 
 [phases.install]
-cmds = ['npm install']
+# --include=dev forces devDependencies (like Vite, the frontend build tool) to
+# install even when NODE_ENV=production is set on the Railway service.
+cmds = ['npm install --include=dev']
 
 [phases.build]
 cmds = ['npm run build']
