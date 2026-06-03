@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider, RequireAuth, useAuth } from './lib/auth.jsx';
 import Login from './pages/Login.jsx';
@@ -11,11 +12,24 @@ import MeetingDetail from './pages/MeetingDetail.jsx';
 import Subscribe from './pages/Subscribe.jsx';
 import Settings from './pages/Settings.jsx';
 
-// Root: landing page for visitors, dashboard for logged-in users.
+// Read from Vite at build time. If unset, fall back to in-app Landing.jsx.
+const EXTERNAL_LANDING_URL = import.meta.env.VITE_LANDING_URL || '';
+
+// Root: dashboard for logged-in users, otherwise either redirect to external
+// landing site OR render our built-in landing page.
 function Root() {
   const { user, loading } = useAuth();
+
+  useEffect(() => {
+    if (!loading && !user && EXTERNAL_LANDING_URL) {
+      window.location.replace(EXTERNAL_LANDING_URL);
+    }
+  }, [user, loading]);
+
   if (loading) return <div className="p-6 text-slate-500">Memuat…</div>;
-  return user ? <Home /> : <Landing />;
+  if (user) return <Home />;
+  if (EXTERNAL_LANDING_URL) return <div className="p-6 text-slate-500">Mengarahkan…</div>;
+  return <Landing />;
 }
 
 export default function App() {
