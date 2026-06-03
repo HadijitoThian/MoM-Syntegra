@@ -6,7 +6,7 @@ import path from 'node:path';
 import { requireAuth, requireActiveSubscription } from '../auth.js';
 import { requireQuota, deductUsage } from '../quota.js';
 import { transcribeAudio } from '../groq.js';
-import { summariseTranscript } from '../claude.js';
+import { summarise } from '../llm.js';
 import { sendEmail } from '../email.js';
 import { buildMeetingEmail } from '../emailTemplates.js';
 
@@ -22,11 +22,12 @@ async function summariseAndEmail(meetingId, userId) {
     const meeting = rows[0];
     if (!meeting || !meeting.transcript) return;
 
-    const summary = await summariseTranscript({
+    const summary = await summarise({
       transcript: meeting.transcript,
       flagged: meeting.flagged_moments,
       durationSeconds: meeting.duration_seconds,
     });
+    console.log(`[summarise] meeting=${meetingId} provider=${summary._provider} model=${summary._model}`);
 
     const summaryPayload = {
       overview: summary.overview,
