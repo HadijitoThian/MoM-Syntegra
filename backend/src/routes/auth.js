@@ -71,6 +71,33 @@ router.get('/me', requireAuth, async (req, res) => {
   res.json({ user: publicUser(rows[0]) });
 });
 
+// Diagnostic: send a test email to the logged-in user and return Resend's response.
+// Helps verify FROM_EMAIL + RESEND_API_KEY + verified domain end-to-end.
+router.post('/test-email', requireAuth, async (req, res) => {
+  const { rows } = await pool.query('SELECT email, full_name FROM users WHERE id = $1', [req.userId]);
+  const user = rows[0];
+  if (!user) return res.status(404).json({ error: 'user_not_found' });
+
+  const cfg = {
+    has_resend_key: !!process.env.RESEND_API_KEY,
+    from_email: process.env.FROM_EMAIL || '(default) noreply@syntegra.co.id',
+    public_url: process.env.PUBLIC_URL || '(unset)',
+    reply_to: process.env.REPLY_TO_EMAIL || '(unset)',
+  };
+
+  try {
+    const result = await sendEmail({
+      to: user.email,
+      subject: '✅ Syntegra MoM — Tes Email',
+      text: `Halo${user.full_name ? ` ${user.full_name}` : ''},\n\nIni adalah email tes dari Syntegra MoM. Jika Anda menerima ini, konfigurasi email berhasil.\n\nTimestamp: ${new Date().toISOString()}`,
+      html: `<p>Halo${user.full_name ? ` ${user.full_name}` : ''},</p><p>Ini adalah email tes dari Syntegra MoM. Jika Anda menerima ini, konfigurasi email berhasil.</p><p style="color:#94a3b8;font-size:12px;">Timestamp: ${new Date().toISOString()}</p>`,
+    });
+    res.json({ ok: true, config: cfg, result });
+  } catch (err) {
+    res.status(502).json({ ok: false, config: cfg, error: err.message });
+  }
+});
+
 router.post('/forgot-password', async (req, res) => {
   const { email } = req.body || {};
   if (!email) return res.status(400).json({ error: 'missing_email' });
